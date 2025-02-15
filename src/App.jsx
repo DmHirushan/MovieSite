@@ -22,35 +22,39 @@ const App = () => {
     const [movieList, setMovieList] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    const fetchMovies = async () => {
+    const fetchMovies = async (query = '') => {
         setLoading(true);
         setErrorMessage("");
-        try{
-            const endPoint = `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
+        try {
+            const endPoint = query
+                ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
+                : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
+
             const response = await fetch(endPoint, API_OPTIONS);
             if (!response.ok) {
                 throw new Error("Could not fetch movies");
             }
-            const data = await response.json();
 
-            if (data.Response === 'False') {
-                setErrorMessage(data.error || 'Failed to fetch movies');
+            const data = await response.json();
+            if (!data.results || data.results.length === 0) {
+                setErrorMessage('No movies found');
                 setMovieList([]);
                 return;
-            }else {
-                setMovieList(data.results || []);
             }
-        }catch(e){
+
+            setMovieList(data.results);
+        } catch (e) {
             console.log(e);
-            setErrorMessage("Error fetching movies. please try again later.");
-        }finally {
+            setErrorMessage("Error fetching movies. Please try again later.");
+        } finally {
             setLoading(false);
         }
-    }
+    };
+
 
     useEffect(() => {
-        fetchMovies();
-    }, [])
+        fetchMovies(searchTerm);
+    }, [searchTerm])
 
     return (
         <main>
@@ -59,7 +63,7 @@ const App = () => {
                     <img src="./hero-img.png" alt="Hero Banner"/>
                     <h1>Find <span className="text-gradient">Movies</span> you will Enjoy
                     Without the Hassle</h1>
-                    <Search serchTerm={searchTerm} setSerchTerm={setSearchTerm} />
+                    <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
                 </header>
 
                 <section className="all-movies">
@@ -77,7 +81,6 @@ const App = () => {
                     )}
                 </section>
 
-                <h1 className="text-white">{searchTerm}</h1>
             </div>
         </main>
     );

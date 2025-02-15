@@ -8,9 +8,8 @@ const Search = ({searchTerm, setSearchTerm}) => {
                 type="text"
                 placeholder="Search through thousend of movies"
                 value={searchTerm}
-                onChange={e => setSerchTerm(e.target.value)}
+                onChange={e => setSearchTerm(e.target.value)}
             />
-            <h1 className="text-white">{searchTerm}</h1>
         </div>
     );
 };
